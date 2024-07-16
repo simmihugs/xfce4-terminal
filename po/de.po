@@ -1128,6 +1128,10 @@ msgstr "Zwischenablage einfügen"
 msgid "Paste selection"
 msgstr "Auswahl einfügen"
 
+#: terminal/terminal-preferences-dialog.c:1621
+msgid "Copy selection or paste clipboard"
++msgstr "Wenn Auswahl existiert in Zwischenablage kopieren; Aus Zwischenablage einfügen"
+
 #: terminal/terminal-preferences-dialog.c:1633
 msgid "Enable Hyperlinks"
 msgstr "Hyperlinks einschalten"

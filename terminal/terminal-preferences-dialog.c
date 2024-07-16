@@ -1618,6 +1618,7 @@ terminal_preferences_dialog_init (TerminalPreferencesDialog *dialog)
   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Context Menu"));
   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Paste clipboard"));
   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Paste selection"));
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Copy selection or paste clipboard"));
   g_object_bind_property (G_OBJECT (dialog->preferences), "misc-right-click-action",
                           G_OBJECT (combo), "active",
                           G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);

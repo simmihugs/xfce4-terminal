@@ -352,6 +352,8 @@ terminal_screen_init (TerminalScreen *screen)
       G_CALLBACK (terminal_screen_paste_primary), screen);
   g_signal_connect_swapped (G_OBJECT (screen->terminal), "paste-clipboard-request",
       G_CALLBACK (terminal_screen_paste_clipboard), screen);
+  g_signal_connect_swapped (G_OBJECT (screen->terminal), "select-or-paste-clipboard-request",
+      G_CALLBACK (terminal_screen_select_or_paste_clipboard), screen);
 
   screen->preferences = terminal_preferences_get ();
 
@@ -2531,6 +2533,58 @@ terminal_screen_paste_clipboard (TerminalScreen *screen)
   else
     vte_terminal_paste_clipboard (VTE_TERMINAL (screen->terminal));
 
+  g_free (text);
+}
+
+/**
+ * terminal_screen_select_or_paste_clipboard:
+ * @screen  : A #TerminalScreen.
+ *
+ * Checks wether something is selected, in which case it will send this selection
+ * to the #GDK_SELECTION_CLIPBOARD and unselect the selection.
+ *
+ * Otherwise paste from the clipboard.
+ **/
+void
+terminal_screen_select_or_paste_clipboard (TerminalScreen *screen)
+{
+  gboolean  copy_on_select;
+  gboolean  show_dialog;
+  gchar    *text = gtk_clipboard_wait_for_text (gtk_clipboard_get (GDK_SELECTION_CLIPBOARD));
+
+  g_return_if_fail (TERMINAL_IS_SCREEN (screen));
+
+  g_object_get (G_OBJECT (screen->preferences), "misc-show-unsafe-paste-dialog", &show_dialog, NULL);
+
+  if (show_dialog &&
+      terminal_screen_is_text_unsafe (text) &&
+      disable_paste_dialog_temporarily == FALSE &&
+      disable_paste_dialog_until_restart == FALSE)
+  {
+    terminal_screen_paste_unsafe_text (screen, text, GDK_SELECTION_CLIPBOARD);
+  }
+  else if (!show_dialog)
+  {
+    if (vte_terminal_get_has_selection (VTE_TERMINAL (screen->terminal)))
+    {
+      g_object_get (G_OBJECT (screen->preferences),
+      		"misc-copy-on-select", &copy_on_select, NULL);
+      if (copy_on_select)
+      {
+        vte_terminal_unselect_all (screen->terminal);
+      }
+      else
+      {
+        terminal_screen_copy_clipboard (screen);
+        vte_terminal_unselect_all (screen->terminal);
+      }
+    }
+    else
+    {
+      vte_terminal_paste_clipboard (VTE_TERMINAL (screen->terminal));
+    }
+  }
+  
   g_free (text);
 }
 

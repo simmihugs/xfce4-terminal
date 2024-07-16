@@ -52,6 +52,7 @@ enum
   GET_CONTEXT_MENU,
   PASTE_SELECTION_REQUEST,
   PASTE_CLIPBOARD_REQUEST,
+  SELECT_OR_PASTE_CLIPBOARD_REQUEST,
 
   LAST_SIGNAL,
 };
@@ -228,6 +229,16 @@ terminal_widget_class_init (TerminalWidgetClass *klass)
    **/
   widget_signals[PASTE_CLIPBOARD_REQUEST] =
     g_signal_new (I_("paste-clipboard-request"),
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
+  /**
+   * TerminalWidget::select-or-paste-clipboard-request:
+   **/
+  widget_signals[SELECT_OR_PASTE_CLIPBOARD_REQUEST] =
+    g_signal_new (I_("select-or-paste-clipboard-request"),
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL,
@@ -580,6 +591,8 @@ terminal_widget_button_press_event (GtkWidget       *widget,
             g_signal_emit (G_OBJECT (widget), widget_signals[PASTE_CLIPBOARD_REQUEST], 0, NULL);
           else if (action == TERMINAL_RIGHT_CLICK_ACTION_PASTE_SELECTION)
             g_signal_emit (G_OBJECT (widget), widget_signals[PASTE_SELECTION_REQUEST], 0, NULL);
+          else if (action == TERMINAL_RIGHT_CLICK_ACTION_SELECT_OR_PASTE_CLIPBOARD)
+            g_signal_emit (G_OBJECT (widget), widget_signals[SELECT_OR_PASTE_CLIPBOARD_REQUEST], 0, NULL);
         }
     }
 
